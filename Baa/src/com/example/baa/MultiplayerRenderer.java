@@ -143,6 +143,8 @@ public class MultiplayerRenderer implements GLSurfaceView.Renderer {
 
         // Draw triangle
         upCabbageGood.draw(cabbageUp);
+        
+        Matrix.setRotateM(mRotationMatrix, 0, 180, 0, 0, 1.0f);
 
         Matrix.multiplyMM(cabbageDown, 0, mMVPMatrix, 0, mRotationMatrix, 0);
         Matrix.scaleM(cabbageDown, 0, 0.25f, 0.25f, 0.5f);
