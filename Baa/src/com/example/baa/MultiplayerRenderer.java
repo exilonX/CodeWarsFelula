@@ -36,36 +36,41 @@ public class MultiplayerRenderer implements GLSurfaceView.Renderer {
 
     private static final String TAG = "MultiplayerRenderer";
     private Sheep mSheep;
+    private Rectangle mBackground;
 
     // mMVPMatrix is an abbreviation for "Model View Projection Matrix"
     private final float[] mMVPMatrix = new float[16];
     private final float[] mProjectionMatrix = new float[16];
     private final float[] mViewMatrix = new float[16];
     private final float[] mRotationMatrix = new float[16];
+    private final float[] mRotationMatrixBackground = new float[16];
 
     private float mAngle;
-
+    private float mAngleBackground;
+    
     @Override
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
 
         // Set the background frame color
-        GLES20.glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
+        GLES20.glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
         
         GLES20.glEnable(GL10.GL_BLEND);
         GLES20.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 
         mSheep = new Sheep();
+        mBackground = new Rectangle();
     }
 
     @Override
     public void onDrawFrame(GL10 unused) {
         float[] scratch = new float[16];
+        float[] scratchBackground = new float[16];
 
         // Draw background color
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
         // Set the camera position (View matrix)
-        Matrix.setLookAtM(mViewMatrix, 0, 0, 0, -5, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+        Matrix.setLookAtM(mViewMatrix, 0, 0, 0, -7, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
 
         // Calculate the projection and view transformation
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
@@ -83,8 +88,15 @@ public class MultiplayerRenderer implements GLSurfaceView.Renderer {
         // Note that the mMVPMatrix factor *must be first* in order
         // for the matrix multiplication product to be correct.
         Matrix.multiplyMM(scratch, 0, mMVPMatrix, 0, mRotationMatrix, 0);
+        
+        Matrix.scaleM(scratch, 0, 0.5f, 0.5f, 0.5f);
+        
+        mAngleBackground = 90.0f;
+        Matrix.setRotateM(mRotationMatrixBackground, 0, mAngleBackground, 0, 0, 1.0f);
+        Matrix.multiplyMM(scratchBackground, 0, mMVPMatrix, 0, mRotationMatrixBackground, 0);
 
         // Draw triangle
+        mBackground.draw(scratchBackground);
         mSheep.draw(scratch);
     }
 
