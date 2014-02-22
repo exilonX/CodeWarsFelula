@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.opengl;
+package com.example.baa;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -34,8 +34,8 @@ import android.util.Log;
  */
 public class MultiplayerRenderer implements GLSurfaceView.Renderer {
 
-    private static final String TAG = "MyGLRenderer";
-    private Triangle mTriangle;
+    private static final String TAG = "MultiplayerRenderer";
+    private Sheep mSheep;
 
     // mMVPMatrix is an abbreviation for "Model View Projection Matrix"
     private final float[] mMVPMatrix = new float[16];
@@ -49,9 +49,12 @@ public class MultiplayerRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
 
         // Set the background frame color
-        GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        GLES20.glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
+        
+        GLES20.glEnable(GL10.GL_BLEND);
+        GLES20.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 
-        mTriangle = new Triangle();
+        mSheep = new Sheep();
     }
 
     @Override
@@ -62,7 +65,7 @@ public class MultiplayerRenderer implements GLSurfaceView.Renderer {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
         // Set the camera position (View matrix)
-        Matrix.setLookAtM(mViewMatrix, 0, 0, 0, -3, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+        Matrix.setLookAtM(mViewMatrix, 0, 0, 0, -5, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
 
         // Calculate the projection and view transformation
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
@@ -82,7 +85,7 @@ public class MultiplayerRenderer implements GLSurfaceView.Renderer {
         Matrix.multiplyMM(scratch, 0, mMVPMatrix, 0, mRotationMatrix, 0);
 
         // Draw triangle
-        mTriangle.draw(scratch);
+        mSheep.draw(scratch);
     }
 
     @Override
