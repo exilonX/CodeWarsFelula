@@ -18,6 +18,7 @@ package com.example.android.opengl;
 import android.app.Activity;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.view.View;
 
 public class Menu extends Activity {
 
@@ -29,8 +30,10 @@ public class Menu extends Activity {
 
         // Create a GLSurfaceView instance and set it
         // as the ContentView for this Activity
-        menuView = new MenuSurfaceView(this);
-        setContentView(menuView);
+//        menuView = new MenuSurfaceView(this);
+//        setContentView(menuView);
+        View mainview = new View(this);
+        setContentView(R.layout.lay);
     }
 
     @Override
