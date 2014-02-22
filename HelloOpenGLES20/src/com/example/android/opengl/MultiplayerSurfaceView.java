@@ -28,9 +28,13 @@ public class MultiplayerSurfaceView extends GLSurfaceView {
 
     private final MultiplayerRenderer mRenderer;
 
+    public static Context context;
+    
     public MultiplayerSurfaceView(Context context) {
         super(context);
 
+        this.context = context;
+        
         // Create an OpenGL ES 2.0 context.
         setEGLContextClientVersion(2);
         setEGLConfigChooser(8, 8, 8, 8, 16, 0);
