@@ -25,6 +25,10 @@
         <activity android:name="com.example.baa.Multiplayer"
             android:label="@string/app_name">
         </activity>
-    </application>
+	    <activity android:name="com.example.baa.EndActivity"
+            android:label="@string/app_name">
+        </activity>
+        
+     </application>
 
 </manifest>

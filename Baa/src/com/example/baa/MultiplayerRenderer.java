@@ -15,9 +15,13 @@
  */
 package com.example.baa;
 
+import java.util.Calendar;
+import java.util.Random;
+
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import android.nfc.cardemulation.OffHostApduService;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
@@ -48,11 +52,20 @@ public class MultiplayerRenderer implements GLSurfaceView.Renderer {
 
     private float mAngle;
     private float mAngleBackground;
-	private Cabbage upCabbageGood;
-	private Cabbage downCabbageGood;
-	private Cabbage upCabbageBad;
-	private Cabbage downCabbageBad;
+	private GoodCabbage upCabbageGood;
+	private GoodCabbage downCabbageGood;
+	private BadCabbage upCabbageBad;
+	private BadCabbage downCabbageBad;
 	private Cloud middleCloud;
+
+	private Rainbow rainbowFlow;
+	
+	private int drawing = 0;
+	private int good = -1;
+	private float cabbageOffset;
+	
+	public int countUp = 0;
+	public int countDown = 0;
 	
     @Override
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
@@ -66,15 +79,35 @@ public class MultiplayerRenderer implements GLSurfaceView.Renderer {
         mBackground = new Rectangle();
         upSheep = new Sheep();
         downSheep = new Sheep();
-        upCabbageGood = new Cabbage();
-        downCabbageGood = new Cabbage();
-        upCabbageBad = new Cabbage();
-        downCabbageBad = new Cabbage();
+        upCabbageGood = new GoodCabbage();
+        downCabbageGood = new GoodCabbage();
+        upCabbageBad = new BadCabbage();
+        downCabbageBad = new BadCabbage();
         middleCloud = new Cloud();
+
+        rainbowFlow = new Rainbow();
     }
 
     @Override
     public void onDrawFrame(GL10 unused) {
+    	Calendar c = Calendar.getInstance(); 
+    	int seconds = c.get(Calendar.SECOND);
+    	
+    	Random r = new Random();
+    	int randomNumber = r.nextInt(15) + 1;
+    	
+    	Log.d("Timp", Integer.toString(seconds));
+    	if (seconds % (20 + randomNumber) == 0 && drawing == 0) {
+    		cabbageOffset = r.nextFloat() * (5f - 0f) + 0f;
+        	drawing = 20;	
+        	if (randomNumber % 2 == 0)
+        		good = 1;
+        	else
+        		good = 0;
+    	}
+    	
+    	Log.d("Offset", Float.toString(cabbageOffset));
+    	
         float[] scratch = new float[16];
         float[] scratchBackground = new float[16];
         float[] scratchUp = new float[16];
@@ -82,7 +115,8 @@ public class MultiplayerRenderer implements GLSurfaceView.Renderer {
         float[] cabbageUp = new float[16];
         float[] cabbageDown = new float[16];
         float[] cloud = new float[16];
-
+        float[] rainbow = new float[16];
+        
         // Draw background color
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
@@ -136,34 +170,52 @@ public class MultiplayerRenderer implements GLSurfaceView.Renderer {
         downSheep.draw(scratchDown);
         
         Matrix.setRotateM(mRotationMatrix, 0, 0, 0, 0, 1.0f);
+        Matrix.multiplyMM(rainbow, 0, mMVPMatrix, 0, mRotationMatrix, 0);
+        Matrix.translateM(rainbow, 0, 0, 0, 0);
+
+        // Draw triangle
+        rainbowFlow.draw(rainbow);
+        
+        Matrix.setRotateM(mRotationMatrix, 0, 0, 0, 0, 1.0f);
+
+        Matrix.multiplyMM(cloud, 0, mMVPMatrix, 0, mRotationMatrix, 0);
+        Matrix.scaleM(cloud, 0, 0.65f, 0.65f, 0.65f);
+        Matrix.translateM(cloud, 0, 0, (float)(countDown - countUp) / 30, 0);
+
+        // Draw triangle
+        middleCloud.draw(cloud);
+        
+ Matrix.setRotateM(mRotationMatrix, 0, 0, 0, 0, 1.0f);
         
         // Combine the rotation matrix with the projection and camera view
         // Note that the mMVPMatrix factor *must be first* in order
         // for the matrix multiplication product to be correct.
         Matrix.multiplyMM(cabbageUp, 0, mMVPMatrix, 0, mRotationMatrix, 0);
         Matrix.scaleM(cabbageUp, 0, 0.25f, 0.25f, 0.5f);
-        Matrix.translateM(cabbageUp, 0, -3.5f, 0, 0);
+        Matrix.translateM(cabbageUp, 0, -3.5f + cabbageOffset, 0 + cabbageOffset, 0);
 
         // Draw triangle
-        upCabbageGood.draw(cabbageUp);
+        if (drawing > 0 && good == 1){
+        	upCabbageGood.draw(cabbageUp);
+        }
+        else if (drawing > 0 && good == 0) {
+        	upCabbageBad.draw(cabbageUp);
+        }
         
         Matrix.setRotateM(mRotationMatrix, 0, 180, 0, 0, 1.0f);
 
         Matrix.multiplyMM(cabbageDown, 0, mMVPMatrix, 0, mRotationMatrix, 0);
         Matrix.scaleM(cabbageDown, 0, 0.25f, 0.25f, 0.5f);
-        Matrix.translateM(cabbageDown, 0, -3.5f, 0, 0);
+        Matrix.translateM(cabbageDown, 0, -3.5f + cabbageOffset, 0 + cabbageOffset, 0);
 
         // Draw triangle
-        downCabbageGood.draw(cabbageDown);
-        
-        Matrix.setRotateM(mRotationMatrix, 0, 0, 0, 0, 1.0f);
-
-        Matrix.multiplyMM(cloud, 0, mMVPMatrix, 0, mRotationMatrix, 0);
-        Matrix.scaleM(cloud, 0, 0.5f, 0.5f, 0.5f);
-        Matrix.translateM(cloud, 0, 0, 0, 0);
-
-        // Draw triangle
-        middleCloud.draw(cloud);
+        if (drawing > 0) {
+        	if (good == 1)
+        		downCabbageGood.draw(cabbageDown);
+        	else
+        		downCabbageBad.draw(cabbageDown);
+        	drawing--;
+        }
     }
 
     @Override

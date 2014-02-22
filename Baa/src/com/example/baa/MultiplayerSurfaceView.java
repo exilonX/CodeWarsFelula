@@ -16,7 +16,10 @@
 package com.example.baa;
 
 import android.content.Context;
+import android.content.Intent;
 import android.opengl.GLSurfaceView;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 
 /**
@@ -29,6 +32,13 @@ public class MultiplayerSurfaceView extends GLSurfaceView {
     private final MultiplayerRenderer mRenderer;
 
     public static Context context;
+    
+    private static float sheepSize = 80.0f;
+    private static float upX = 381.0f;
+    private static float upY = 115.0f;
+    private static float downX = 381.0f;
+    private static float downY = 935.0f;
+    
     
     public MultiplayerSurfaceView(Context context) {
         super(context);
@@ -44,7 +54,7 @@ public class MultiplayerSurfaceView extends GLSurfaceView {
         setRenderer(mRenderer);
 
         // Render the view only when there is a change in the drawing data
-        setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+        setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
     }
 
     private final float TOUCH_SCALE_FACTOR = 180.0f / 320;
@@ -57,34 +67,52 @@ public class MultiplayerSurfaceView extends GLSurfaceView {
         // and other input controls. In this case, you are only
         // interested in events where the touch position changed.
 
-        float x = e.getX();
+    	float x = e.getX();
         float y = e.getY();
+        
+        Log.d("valoare x", "" + x);
+        Log.d("valoare y", "" + y);
+         
+        if (e.getAction() == MotionEvent.ACTION_DOWN) {
 
-        switch (e.getAction()) {
-            case MotionEvent.ACTION_MOVE:
-
-                float dx = x - mPreviousX;
-                float dy = y - mPreviousY;
-
-                // reverse direction of rotation above the mid-line
-                if (y > getHeight() / 2) {
-                    dx = dx * -1 ;
-                }
-
-                // reverse direction of rotation to left of the mid-line
-                if (x < getWidth() / 2) {
-                    dy = dy * -1 ;
-                }
-
-                mRenderer.setAngle(
-                        mRenderer.getAngle() +
-                        ((dx + dy) * TOUCH_SCALE_FACTOR));  // = 180.0f / 320
-                requestRender();
+            	 if (mRenderer != null)
+                 {
+                     // Ensure we call switchMode() on the OpenGL thread.
+                     // queueEvent() is a method of GLSurfaceView that will do this for us.
+            		 // 
+            		 if ((x <= upX + sheepSize) && (x >= upX - sheepSize) &&(y <= upY + sheepSize ) && (y >= upY - sheepSize)) 
+	                     queueEvent(new Runnable()
+	                     {
+	                         @Override
+	                         public void run()
+	                         {
+	                             mRenderer.countUp++;
+	                         }
+	                     });
+            		 
+            		 else
+	            		 if ((x <= downX + sheepSize) && (x >= downX - sheepSize) && (y <= downY + sheepSize ) && (y >= downY - sheepSize)) 
+		                     queueEvent(new Runnable()
+		                     {
+		                         @Override
+		                         public void run()
+		                         {
+		                             mRenderer.countDown++;
+		                         }
+		                     });
+            		 Log.d("Down", String.valueOf(mRenderer.countDown));
+            		 Log.d("UP", String.valueOf(mRenderer.countUp));
+            		 if (Math.abs(mRenderer.countDown - mRenderer.countUp) > 30) {
+            			 int winner = mRenderer.countDown > mRenderer.countUp ? 1 : 2;
+            			 Intent intent_end = new Intent(getContext(), EndActivity.class);
+            			 intent_end.putExtra("winner", winner);
+            			 getContext().startActivity(intent_end);
+            		 }
+                     return true;
+                 }
         }
+        
+        return super.onTouchEvent(e);
 
-        mPreviousX = x;
-        mPreviousY = y;
-        return true;
-    }
-
+}
 }

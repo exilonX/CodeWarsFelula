@@ -1,0 +1,3 @@
+INDEX VERSION 1.126+C:\Users\Andreea\Documents\GitHub\CodeWarsFelula\.metadata\.plugins\org.eclipse.jdt.core
+1540026318.index
+2930176941.index
