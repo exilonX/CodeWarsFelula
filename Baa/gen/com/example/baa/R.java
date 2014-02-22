@@ -25,7 +25,8 @@ public final class R {
         public static final int ic_launcher=0x7f020001;
         public static final int main_background=0x7f020002;
         public static final int multi=0x7f020003;
-        public static final int single=0x7f020004;
+        public static final int power_up=0x7f020004;
+        public static final int single=0x7f020005;
     }
     public static final class id {
         public static final int action_settings=0x7f080002;
