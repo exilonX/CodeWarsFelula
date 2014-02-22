@@ -121,8 +121,8 @@ public class MultiplayerRenderer implements GLSurfaceView.Renderer {
         // Note that the mMVPMatrix factor *must be first* in order
         // for the matrix multiplication product to be correct.
         Matrix.multiplyMM(scratchUp, 0, mMVPMatrix, 0, mRotationMatrix, 0);
-        Matrix.scaleM(scratchUp, 0, 0.5f, 0.5f, 0.5f);
-        Matrix.translateM(scratchUp, 0, 0, 2.8f, 0);
+        Matrix.scaleM(scratchUp, 0, 0.75f, 0.75f, 0.75f);
+        Matrix.translateM(scratchUp, 0, 0, 2.5f, 0);
 
         // Draw triangle
         upSheep.draw(scratchUp);
@@ -130,8 +130,8 @@ public class MultiplayerRenderer implements GLSurfaceView.Renderer {
         Matrix.setRotateM(mRotationMatrix, 0, 180, 0, 0, 1.0f);
         
         Matrix.multiplyMM(scratchDown, 0, mMVPMatrix, 0, mRotationMatrix, 0);
-        Matrix.scaleM(scratchDown, 0, 0.5f, 0.5f, 0.5f);
-        Matrix.translateM(scratchDown, 0, 0, 2.8f, 0);
+        Matrix.scaleM(scratchDown, 0, 0.75f, 0.75f, 0.75f);
+        Matrix.translateM(scratchDown, 0, 0, 2.5f, 0);
         
         downSheep.draw(scratchDown);
         
