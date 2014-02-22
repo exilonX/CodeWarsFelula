@@ -52,6 +52,7 @@ public class MultiplayerRenderer implements GLSurfaceView.Renderer {
 	private Cabbage downCabbageGood;
 	private Cabbage upCabbageBad;
 	private Cabbage downCabbageBad;
+	private Cloud middleCloud;
 	
     @Override
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
@@ -69,6 +70,7 @@ public class MultiplayerRenderer implements GLSurfaceView.Renderer {
         downCabbageGood = new Cabbage();
         upCabbageBad = new Cabbage();
         downCabbageBad = new Cabbage();
+        middleCloud = new Cloud();
     }
 
     @Override
@@ -79,6 +81,7 @@ public class MultiplayerRenderer implements GLSurfaceView.Renderer {
         float[] scratchDown = new float[16];
         float[] cabbageUp = new float[16];
         float[] cabbageDown = new float[16];
+        float[] cloud = new float[16];
 
         // Draw background color
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
@@ -152,6 +155,15 @@ public class MultiplayerRenderer implements GLSurfaceView.Renderer {
 
         // Draw triangle
         downCabbageGood.draw(cabbageDown);
+        
+        Matrix.setRotateM(mRotationMatrix, 0, 0, 0, 0, 1.0f);
+
+        Matrix.multiplyMM(cloud, 0, mMVPMatrix, 0, mRotationMatrix, 0);
+        Matrix.scaleM(cloud, 0, 0.5f, 0.5f, 0.5f);
+        Matrix.translateM(cloud, 0, 0, 0, 0);
+
+        // Draw triangle
+        middleCloud.draw(cloud);
     }
 
     @Override
