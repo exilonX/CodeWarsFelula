@@ -35,8 +35,13 @@ import android.util.Log;
 public class MultiplayerRenderer implements GLSurfaceView.Renderer {
 
     private static final String TAG = "MultiplayerRenderer";
+<<<<<<< HEAD
     private Sheep mSheep;
     private Rectangle mBackground;
+=======
+    private Sheep upSheep;
+    private Sheep downSheep;
+>>>>>>> fe3847bc06fd9c29972c053a7f706133c224751c
 
     // mMVPMatrix is an abbreviation for "Model View Projection Matrix"
     private final float[] mMVPMatrix = new float[16];
@@ -46,8 +51,16 @@ public class MultiplayerRenderer implements GLSurfaceView.Renderer {
     private final float[] mRotationMatrixBackground = new float[16];
 
     private float mAngle;
+<<<<<<< HEAD
     private float mAngleBackground;
     
+=======
+	private Cabbage upCabbageGood;
+	private Cabbage downCabbageGood;
+	private Cabbage upCabbageBad;
+	private Cabbage downCabbageBad;
+
+>>>>>>> fe3847bc06fd9c29972c053a7f706133c224751c
     @Override
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
 
@@ -57,14 +70,31 @@ public class MultiplayerRenderer implements GLSurfaceView.Renderer {
         GLES20.glEnable(GL10.GL_BLEND);
         GLES20.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 
+<<<<<<< HEAD
         mSheep = new Sheep();
         mBackground = new Rectangle();
+=======
+        upSheep = new Sheep();
+        downSheep = new Sheep();
+        upCabbageGood = new Cabbage();
+        downCabbageGood = new Cabbage();
+        upCabbageBad = new Cabbage();
+        downCabbageBad = new Cabbage();
+>>>>>>> fe3847bc06fd9c29972c053a7f706133c224751c
     }
 
     @Override
     public void onDrawFrame(GL10 unused) {
+<<<<<<< HEAD
         float[] scratch = new float[16];
         float[] scratchBackground = new float[16];
+=======
+        float[] scratchUp = new float[16];
+        float[] scratchDown = new float[16];
+        float[] cabbageUp = new float[16];
+        float[] cabbageDown = new float[16];
+        
+>>>>>>> fe3847bc06fd9c29972c053a7f706133c224751c
 
         // Draw background color
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
@@ -81,12 +111,45 @@ public class MultiplayerRenderer implements GLSurfaceView.Renderer {
         // Leave this code out when using TouchEvents.
         // long time = SystemClock.uptimeMillis() % 4000L;
         // float angle = 0.090f * ((int) time);
-
-        Matrix.setRotateM(mRotationMatrix, 0, mAngle, 0, 0, 1.0f);
-
+        
+        Matrix.setRotateM(mRotationMatrix, 0, 0, 0, 0, 1.0f);
+        
         // Combine the rotation matrix with the projection and camera view
         // Note that the mMVPMatrix factor *must be first* in order
         // for the matrix multiplication product to be correct.
+        Matrix.multiplyMM(scratchUp, 0, mMVPMatrix, 0, mRotationMatrix, 0);
+        Matrix.scaleM(scratchUp, 0, 0.5f, 0.5f, 0.5f);
+        Matrix.translateM(scratchUp, 0, 0, 2.8f, 0);
+
+        // Draw triangle
+        upSheep.draw(scratchUp);
+        
+        Matrix.setRotateM(mRotationMatrix, 0, 180, 0, 0, 1.0f);
+        
+        Matrix.multiplyMM(scratchDown, 0, mMVPMatrix, 0, mRotationMatrix, 0);
+        Matrix.scaleM(scratchDown, 0, 0.5f, 0.5f, 0.5f);
+        Matrix.translateM(scratchDown, 0, 0, 2.8f, 0);
+        
+        downSheep.draw(scratchDown);
+        
+        Matrix.setRotateM(mRotationMatrix, 0, 0, 0, 0, 1.0f);
+        
+        // Combine the rotation matrix with the projection and camera view
+        // Note that the mMVPMatrix factor *must be first* in order
+        // for the matrix multiplication product to be correct.
+        Matrix.multiplyMM(cabbageUp, 0, mMVPMatrix, 0, mRotationMatrix, 0);
+        Matrix.scaleM(cabbageUp, 0, 0.25f, 0.25f, 0.5f);
+        Matrix.translateM(cabbageUp, 0, -3.5f, 0, 0);
+
+        // Draw triangle
+        upCabbageGood.draw(cabbageUp);
+        
+        Matrix.setRotateM(mRotationMatrix, 0, 180, 0, 0, 1.0f);
+        
+        // Combine the rotation matrix with the projection and camera view
+        // Note that the mMVPMatrix factor *must be first* in order
+        // for the matrix multiplication product to be correct.
+<<<<<<< HEAD
         Matrix.multiplyMM(scratch, 0, mMVPMatrix, 0, mRotationMatrix, 0);
         
         Matrix.scaleM(scratch, 0, 0.5f, 0.5f, 0.5f);
@@ -98,6 +161,14 @@ public class MultiplayerRenderer implements GLSurfaceView.Renderer {
         // Draw triangle
         mBackground.draw(scratchBackground);
         mSheep.draw(scratch);
+=======
+        Matrix.multiplyMM(cabbageDown, 0, mMVPMatrix, 0, mRotationMatrix, 0);
+        Matrix.scaleM(cabbageDown, 0, 0.25f, 0.25f, 0.5f);
+        Matrix.translateM(cabbageDown, 0, -3.5f, 0, 0);
+
+        // Draw triangle
+        downCabbageGood.draw(cabbageDown);
+>>>>>>> fe3847bc06fd9c29972c053a7f706133c224751c
     }
 
     @Override

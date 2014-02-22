@@ -1,3 +1,5 @@
+package com.example.baa;
+
 /*
  * Copyright (C) 2011 The Android Open Source Project
  *
@@ -13,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.baa;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -23,36 +24,30 @@ import java.nio.ShortBuffer;
 import android.opengl.GLES20;
 
 /**
- * A two-dimensional rectangle for use as a drawn object in OpenGL ES 2.0.
+ * A two-dimensional square for use as a drawn object in OpenGL ES 2.0.
  */
-public class Sheep {
+public class Square {
 
     private final String vertexShaderCode =
             // This matrix member variable provides a hook to manipulate
             // the coordinates of the objects that use this vertex shader
             "uniform mat4 uMVPMatrix;" +
             "attribute vec4 vPosition;" +
-            "attribute vec2 texCoords;" +
-            "varying vec2 texCoordinates;" +
             "void main() {" +
             // The matrix must be included as a modifier of gl_Position.
             // Note that the uMVPMatrix factor *must be first* in order
             // for the matrix multiplication product to be correct.
-            " texCoordinates = texCoords;" +
-            "gl_Position = uMVPMatrix * vPosition;" +
+            "  gl_Position = uMVPMatrix * vPosition;" +
             "}";
 
     private final String fragmentShaderCode =
             "precision mediump float;" +
             "uniform vec4 vColor;" +
-            "uniform sampler2D tex;" +
-            "varying vec2 texCoordinates;" +
             "void main() {" +
-            "  gl_FragColor = texture2D(tex, texCoordinates);" +
+            "  gl_FragColor = vColor;" +
             "}";
 
     private final FloatBuffer vertexBuffer;
-    private final FloatBuffer textureBuffer;
     private final ShortBuffer drawListBuffer;
     private final int mProgram;
     private int mPositionHandle;
@@ -61,53 +56,30 @@ public class Sheep {
 
     // number of coordinates per vertex in this array
     static final int COORDS_PER_VERTEX = 3;
-    static float rectangleCoords[] = {
+    static float squareCoords[] = {
             -0.5f,  0.5f, 0.0f,   // top left
             -0.5f, -0.5f, 0.0f,   // bottom left
              0.5f, -0.5f, 0.0f,   // bottom right
              0.5f,  0.5f, 0.0f }; // top right
-    
-    static final int TEXCOORDS_PER_VERTEX = 2;
-    static float textureCoords[] = {
-         0.0f,  0.0f,   // top left
-         0.0f,  1.0f,	// bottom left
-         1.0f,  1.0f,	// bottom right
-         1.0f,  0.0f};	// top right
 
     private final short drawOrder[] = { 0, 1, 2, 0, 2, 3 }; // order to draw vertices
 
     private final int vertexStride = COORDS_PER_VERTEX * 4; // 4 bytes per vertex
-    private final int textureStride = TEXCOORDS_PER_VERTEX * 4; // 4 bytes per vertex
 
-    float color[] = { 0.5f, 0.0f, 0.0f, 1.0f };
-
-	private int mTextureHandle;
-
-	private int mTextureUniformHandler;
-
-	private int texData;
+    float color[] = { 0.2f, 0.709803922f, 0.898039216f, 1.0f };
 
     /**
      * Sets up the drawing object data for use in an OpenGL ES context.
      */
-    public Sheep() {
+    public Square() {
         // initialize vertex byte buffer for shape coordinates
         ByteBuffer bb = ByteBuffer.allocateDirect(
         // (# of coordinate values * 4 bytes per float)
-                rectangleCoords.length * 4);
+                squareCoords.length * 4);
         bb.order(ByteOrder.nativeOrder());
         vertexBuffer = bb.asFloatBuffer();
-        vertexBuffer.put(rectangleCoords);
+        vertexBuffer.put(squareCoords);
         vertexBuffer.position(0);
-        
-        // initialize texture byte buffer for shape coordinates
-        ByteBuffer tbb = ByteBuffer.allocateDirect(
-        // (# of coordinate values * 4 bytes per float)
-                textureCoords.length * 4);
-        tbb.order(ByteOrder.nativeOrder());
-        textureBuffer = tbb.asFloatBuffer();
-        textureBuffer.put(textureCoords);
-        textureBuffer.position(0);
 
         // initialize byte buffer for the draw list
         ByteBuffer dlb = ByteBuffer.allocateDirect(
@@ -117,14 +89,12 @@ public class Sheep {
         drawListBuffer = dlb.asShortBuffer();
         drawListBuffer.put(drawOrder);
         drawListBuffer.position(0);
-        
-        texData = TextureHelper.loadTexture(MultiplayerSurfaceView.context, R.drawable.single);
 
         // prepare shaders and OpenGL program
-        int vertexShader = MenuRenderer.loadShader(
+        int vertexShader = MultiplayerRenderer.loadShader(
                 GLES20.GL_VERTEX_SHADER,
                 vertexShaderCode);
-        int fragmentShader = MenuRenderer.loadShader(
+        int fragmentShader = MultiplayerRenderer.loadShader(
                 GLES20.GL_FRAGMENT_SHADER,
                 fragmentShaderCode);
 
@@ -143,18 +113,10 @@ public class Sheep {
     public void draw(float[] mvpMatrix) {
         // Add program to OpenGL environment
         GLES20.glUseProgram(mProgram);
-        
-        // load the texture
-        mTextureUniformHandler = GLES20.glGetUniformLocation(mProgram, "tex");
-        
-        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texData);
-        
-        GLES20.glUniform1i(mTextureUniformHandler, 0);
 
         // get handle to vertex shader's vPosition member
         mPositionHandle = GLES20.glGetAttribLocation(mProgram, "vPosition");
-        
+
         // Enable a handle to the triangle vertices
         GLES20.glEnableVertexAttribArray(mPositionHandle);
 
@@ -163,19 +125,6 @@ public class Sheep {
                 mPositionHandle, COORDS_PER_VERTEX,
                 GLES20.GL_FLOAT, false,
                 vertexStride, vertexBuffer);
-        
-       //get handle to vertex shader's texCoords member
-       mTextureHandle = GLES20.glGetAttribLocation(mProgram, "texCoords");
-       
-       // Enable a handle to the triangle vertices
-       GLES20.glEnableVertexAttribArray(mTextureHandle);
-
-       // Prepare the triangle coordinate data
-       GLES20.glVertexAttribPointer(
-               mTextureHandle, TEXCOORDS_PER_VERTEX,
-               GLES20.GL_FLOAT, false,
-               textureStride, textureBuffer);
-      
 
         // get handle to fragment shader's vColor member
         mColorHandle = GLES20.glGetUniformLocation(mProgram, "vColor");
@@ -185,13 +134,13 @@ public class Sheep {
 
         // get handle to shape's transformation matrix
         mMVPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix");
-        MenuRenderer.checkGlError("glGetUniformLocation");
+        MultiplayerRenderer.checkGlError("glGetUniformLocation");
 
         // Apply the projection and view transformation
         GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mvpMatrix, 0);
-        MenuRenderer.checkGlError("glUniformMatrix4fv");
+        MultiplayerRenderer.checkGlError("glUniformMatrix4fv");
 
-        // Draw the rectangle
+        // Draw the square
         GLES20.glDrawElements(
                 GLES20.GL_TRIANGLES, drawOrder.length,
                 GLES20.GL_UNSIGNED_SHORT, drawListBuffer);
